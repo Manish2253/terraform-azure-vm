@@ -1,0 +1,39 @@
+name: Terraform Azure VM
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    env:
+      TF_VAR_vm_name: ${{ secrets.TF_VAR_vm_name }}
+      TF_VAR_vm_size: ${{ secrets.TF_VAR_vm_size }}
+      TF_VAR_admin_username: ${{ secrets.TF_VAR_admin_username }}
+      TF_VAR_admin_password: ${{ secrets.TF_VAR_admin_password }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan
