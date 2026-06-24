@@ -2,9 +2,9 @@ name: 'Terraform - Azure Linux VM'
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
   workflow_dispatch:
 
 permissions:
@@ -22,10 +22,7 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: "1.13.0"
 
-      # ===================== AZURE LOGIN =====================
       - name: Azure Login
         uses: azure/login@v2
         with:
@@ -34,7 +31,6 @@ jobs:
       - name: Verify Azure Login
         run: az account show
 
-      # ===================== TERRAFORM COMMANDS =====================
       - name: Terraform Init
         run: terraform init
 
@@ -44,29 +40,12 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      # ===================== PLAN =====================
       - name: Terraform Plan
         id: plan
         env:
           TF_VAR_admin_password: ${{ secrets.TF_VAR_admin_password }}
         run: terraform plan -out=tfplan
 
-      # Comment plan result on Pull Requests
-      - name: Comment Terraform Plan on PR
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const output = `${{ steps.plan.outputs.stdout || steps.plan.outputs.stderr }}`;
-            const body = `### 🔍 Terraform Plan Result\n\`\`\`terraform\n${output}\n\`\`\``;
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            });
-
-      # ===================== APPLY (Only on main branch) ======================
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         env:
