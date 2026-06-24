@@ -26,13 +26,13 @@ resource "azurerm_network_interface" "nic" {
 }
 
 resource "azurerm_public_ip" "vm_public_ip" {
-  name                = "${var.vm_name}-pip"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+  name                = "linuxvm-pip"
+  location            = data.azurerm_resource_group.rg.location
+  resource_group_name = data.azurerm_resource_group.rg.name
   allocation_method   = "Static"
   sku                 = "Standard"
   }
-  
+
 resource "azurerm_linux_virtual_machine" "vm" {
   name                = var.vm_name
   resource_group_name = data.azurerm_resource_group.rg.name
