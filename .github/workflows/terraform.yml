@@ -16,27 +16,3 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.15.5"
-
-      # ===================== AZURE LOGIN =====================
-      - name: Azure Login
-        uses: azure/login@v2
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
-
-      # ===================== TERRAFORM INIT =====================
-      - name: Terraform Init
-        run: terraform init
-
-      # ===================== VALIDATION =====================
-      - name: Terraform Format Check
-        run: terraform fmt -check
-
-      - name: Terraform Validate
-        run: terraform validate
-
-      # ===================== PLAN =====================
-      - name: Terraform Plan
-        id: plan
-        env:
-          TF_VAR_admin_password: ${{ secrets.TF_VAR_admin_password }}
-        run: terraform plan -out=tfplan
